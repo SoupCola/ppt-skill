@@ -29,10 +29,11 @@ description: |
 
 ## 风格路由
 
-开工前先和用户对齐风格。本技能内置两种预设,各是一个 `references/styles/*.md` 文件:
+开工前先和用户对齐风格。本技能内置三种预设,各是一个 `references/styles/*.md` 文件:
 
 - **汇报风格**(管理评审型)→ `references/styles/briefing-report.md`:领导/评委,结论先行,商务留白,克制 Bento。
 - **技术风格**(工程评审型)→ `references/styles/technical-deepdive.md`:架构师/同行,架构图 + 方案对比,密集混合网格。
+- **信息可视化图文风格**(军工/科技/工业/政府/规划型)→ `references/styles/infoviz.md`:领导/规划评审/技术同行,固定三段骨架 + 模块卡 + 每页约 4 图文并茂(A 技术图 + B 场景占位),Native-PPTX 友好可编辑。
 
 新增风格:在 `references/styles/` 加一个 md 文件即可,无需改 SKILL.md。SKILL.md 只靠文件名约定风格路由,Stage 0 选定后加载对应文件作为本份的视觉与密度基调。
 
@@ -55,7 +56,7 @@ cs-brainstorm 风格:AI 是思考伙伴,不是记录员。一次只问一个维�
 3. **页数** — 固定页数或范围。
 4. **源内容** — 论文 / 报告 / Markdown / PDF / DOCX 摘录 / 要点 / 对话材料。
 5. **背景调研** — 如有,提供事实依据 / 市场现状 / 技术事实,供大纲 Context-aware。
-6. **风格** — 汇报风格 / 技术风格 / 自定义(指向某个 `references/styles/*.md`)。
+6. **风格** — 汇报风格 / 技术风格 / 信息可视化图文风格 / 自定义(指向某个 `references/styles/*.md`)。
 7. **视觉约束** — 配色 / 品牌 / 字体 / 模板路径(可选)。
 8. **输出形态** — 只要大纲 / SVG 页 / PPTX / 备注 / Q&A 页 / snapshot 兜底。
 
@@ -86,3 +87,4 @@ cs-brainstorm 风格:AI 是思考伙伴,不是记录员。一次只问一个维�
 - `references/ppt-engine.md` — 全局 ppt-engine 后端路径、命令、依赖、输出模式、风险。
 - `references/styles/briefing-report.md` — 汇报风格(管理评审型)预设。
 - `references/styles/technical-deepdive.md` — 技术风格(工程评审型)预设。
+- `references/styles/infoviz.md` — 信息可视化图文风格(军工/科技/工业/政府/规划型)预设。
