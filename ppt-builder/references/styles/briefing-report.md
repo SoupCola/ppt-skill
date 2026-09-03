@@ -51,6 +51,13 @@
 - [ ] 留白充足、字号层级清晰?
 - [ ] 无虚构数据,只用了输入材料?
 
+## 样张参考(已验收效果,生成前可 Read 对齐观感)
+
+位于 `references/styles/examples/briefing-report/`:
+
+- `p2_overview_hero.png` — 结论先行总览页:顶部深蓝英雄条 + 三支撑卡
+- `p4_bignum_chart.png` — 数据页:大数字卡 + 横向条形图 + 底部结论条
+
 ## STYLE_BRIEF 示例(填入 svg-page-prompt 的 `{{STYLE_BRIEF}}`)
 
 ```text

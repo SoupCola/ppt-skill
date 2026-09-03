@@ -32,10 +32,10 @@ description: |
 开工前先和用户对齐风格。本技能内置三种预设,各是一个 `references/styles/*.md` 文件:
 
 - **汇报风格**(管理评审型)→ `references/styles/briefing-report.md`:领导/评委,结论先行,商务留白,克制 Bento。
-- **技术风格**(工程评审型)→ `references/styles/technical-deepdive.md`:架构师/同行,架构图 + 方案对比,密集混合网格。
-- **信息可视化图文风格**(军工/科技/工业/政府/规划型)→ `references/styles/infoviz.md`:领导/规划评审/技术同行,固定三段骨架 + 模块卡 + 每页约 4 图文并茂(A 技术图 + B 场景占位),Native-PPTX 友好可编辑。
+- **技术风格**(工程评审型 v2)→ `references/styles/technical-deepdive.md`:架构师/同行/技术评委,三段骨架视觉 + 方案权衡 + 对比矩阵/代码卡 + 实测证据页型(真实图与数据图表混排)。2026-09 经风格样本校准:视觉基调来自 infoviz 三段骨架,实测证据页型来自用户实测 deck。
+- **信息可视化图文风格**(军工/科技/工业/政府/规划型)→ `references/styles/infoviz.md`:领导/规划评审,固定三段骨架 + 模块卡 + 每页约 4 图文并茂(A 技术图 + B 场景占位),场景占位为主、不嵌真实图。
 
-新增风格:在 `references/styles/` 加一个 md 文件即可,无需改 SKILL.md。SKILL.md 只靠文件名约定风格路由,Stage 0 选定后加载对应文件作为本份的视觉与密度基调。
+新增风格:在 `references/styles/` 加一个 md 文件即可,无需改 SKILL.md。SKILL.md 只靠文件名约定风格路由,Stage 0 选定后加载对应文件作为本份的视觉与密度基调。技术风格与 infoviz 视觉同源,选型时按"工程评审(可嵌实测图) vs 规划叙事(场景占位)"区分。
 
 ## 工作流(5 阶段)
 
@@ -44,7 +44,7 @@ description: |
 1. **Stage 0 澄清(头脑风暴)** — 见下节。一次只问一个维度,收齐才进下一阶段。
 2. **Stage 1 大纲** — 用 `references/outline-prompt.md`(v2.0 Context-Aware 金字塔大纲),产出 `[PPT_OUTLINE]...[/PPT_OUTLINE]` JSON,每页 `content` 填 3–5 条要点。
 3. **Stage 2 逐页详化** — 把大纲每页扩成:核心结论 + 支撑要点/数据 + 证据溯源 + 视觉策略 + Bento 卡片结构 + 备注提示,喂给 Stage 3。
-4. **Stage 3 SVG 生成** — 用 `references/svg-page-prompt.md`(含共享 Bento 布局规则)+ 选定风格文件,逐页生成 1280×720 SVG。
+4. **Stage 3 SVG 生成 + 质量门** — 用 `references/svg-page-prompt.md`(含共享 Bento 布局规则与**文字宽度预算硬规则**)+ 选定风格文件,逐页生成;每页立即跑 `scripts/svg_text_lint.py`(溢出/重叠/悬空连线检查),error 清零后,高风险页再用 ppt-engine `visual_review.py` 渲染回检。
 5. **Stage 4 导出** — 调用 ppt-engine 定稿并导出 PPTX,见 `references/ppt-engine.md`。报告最终路径与可编辑性。
 
 ## Stage 0 澄清怎么做
@@ -81,10 +81,17 @@ cs-brainstorm 风格:AI 是思考伙伴,不是记录员。一次只问一个维�
 
 ## 参考
 
-- `references/workflow.md` — 完整 input→output 流程与完成报告模板。
+- `references/workflow.md` — 完整 input→output 流程、Stage 3 质量门(lint + 渲染回检)与完成报告模板。
 - `references/outline-prompt.md` — v2.0 Context-Aware 金字塔大纲提示词。
-- `references/svg-page-prompt.md` — 1280×720 SVG 页面提示词 + 共享 Bento Grid 布局规则。
-- `references/ppt-engine.md` — 全局 ppt-engine 后端路径、命令、依赖、输出模式、风险。
+- `references/svg-page-prompt.md` — 1280×720 SVG 页面提示词 + 共享 Bento Grid 布局规则 + 文字宽度预算与对齐硬规则。
+- `references/ppt-engine.md` — 同级 ppt-engine 后端路径(可移植定位)、命令、依赖、输出模式、风险。
+- `scripts/svg_text_lint.py` — Stage 3 质量门:文字溢出/重叠/连线悬空几何检查(零依赖)。
 - `references/styles/briefing-report.md` — 汇报风格(管理评审型)预设。
-- `references/styles/technical-deepdive.md` — 技术风格(工程评审型)预设。
+- `references/styles/technical-deepdive.md` — 技术风格(工程评审型 v2,三段骨架 + 实测证据页型)预设。
 - `references/styles/infoviz.md` — 信息可视化图文风格(军工/科技/工业/政府/规划型)预设。
+- `references/styles/examples/<风格名>/` — 各风格已验收样张 PNG,生成前 Read 对齐观感。
+
+## 版本记录
+
+- **v2.1(2026-09-04)风格沉淀**:基于 3 风格 × 同内容红外融合实测样张的用户校准——技术风格 v2 重定义(infoviz 三段骨架 + 实测证据页型,源自 deck_b/deck_c 样张反馈);新增共享「文字宽度预算与对齐硬规则」(svg-page-prompt.md)与 `scripts/svg_text_lint.py` Stage 3 质量门(溢出/重叠/悬空连线/箭头指向检查);workflow 增加渲染回检与 dagre/elkjs 预布局指引;三风格新增验收样张。样张验证:2 deck × 6 页 lint 清零 + judge 12/12 通过。
+- v2.0:三风格预设(briefing-report / technical-deepdive / infoviz)+ Context-Aware 大纲 + Bento SVG 流水线。

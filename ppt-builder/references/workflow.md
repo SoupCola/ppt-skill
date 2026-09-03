@@ -11,7 +11,7 @@
 3. 页数或页数范围
 4. 源内容(论文 / 报告 / Markdown / PDF / DOCX 摘录 / 要点 / 对话材料)
 5. 背景调研(事实依据 / 市场现状 / 技术事实,供大纲 Context-aware)
-6. 风格(汇报风格 `briefing-report` / 技术风格 `technical-deepdive` / 自定义 `styles/<name>.md`)
+6. 风格(汇报风格 `briefing-report` / 技术风格 `technical-deepdive` / 信息可视化图文风格 `infoviz` / 自定义 `styles/<name>.md`)
 7. 视觉约束(配色 / 品牌 / 字体 / 模板路径,可选)
 8. 输出形态(只要大纲 / SVG 页 / PPTX / 备注 / Q&A 页 / snapshot 兜底)
 
@@ -70,7 +70,7 @@
 
 ## Stage 3 — 生成 SVG 页面
 
-用 `references/svg-page-prompt.md`(含共享 Bento 布局规则)+ 选定风格文件,逐页生成。
+用 `references/svg-page-prompt.md`(含共享 Bento 布局规则、**文字宽度预算与对齐硬规则**)+ 选定风格文件,逐页生成。
 
 硬约束:
 
@@ -79,6 +79,27 @@
 - 含页面背景 `<rect>`。
 - 内容页优先 Bento Grid,卡片间 ≥ 20px 间距,四周安全边距。
 - 遵守 `svg-page-prompt.md` 的 Native-PPTX-friendly SVG 约束,避免 ppt-engine native 导出不支持的特性。
+- 遵守**文字宽度预算**(中文 ≈ 1.0×字号、英文/数字 ≈ 0.55×字号,行宽 ≤ 卡片内宽 − 2×16px)、居中标签必须 `text-anchor="middle"`、连线端点取节点边框几何中点。
+
+**每页生成后立即过 lint 质量门**(ppt-builder 自带,零依赖):
+
+```bash
+python "<ppt-builder路径>/scripts/svg_text_lint.py" <svg_output目录>
+```
+
+- 基于同一套宽度预算公式做几何检查:文字溢出卡片、越出画布、文字互相重叠、连线端点悬空。
+- `error`(溢出/越界)必须修复后重跑至清零;`warning`(文字重叠/悬空端点)逐条判断,属实则修。
+- 修复优先改几何(卡片加宽/文字换行/端点对齐到边框中点),不要整体缩字号。
+
+高风险页(嵌真实图、复杂链路图、密集矩阵)在 lint 之外再做**渲染回检**:
+
+```bash
+python "<ppt-engine路径>/scripts/visual_review.py" <project_path> --pages 03 05
+```
+
+Playwright + CJK 字体回退渲染 PNG 到 `<project>/.preview/`,肉眼或视觉模型复核版式;发现位置问题回到本 Stage 修 SVG,再重跑 lint,通过后才进 Stage 4。
+
+复杂链路/流程图(≥6 节点或含分叉)建议**预布局**:用 dagre(5.8k★)/elkjs(2.75k★) 以 JSON 描述节点与边、由布局引擎输出坐标与连线拐点,再把坐标转写为原生安全 SVG——布局智能化、输出仍可编辑。禁止直接粘贴 mermaid/d2 输出的 SVG(含 CSS/marker,违反 Native-PPTX 约束)。
 
 建议文件放置(ppt-engine 项目内):
 
@@ -93,10 +114,10 @@
 
 ## Stage 4 — 导出(ppt-engine)
 
-后端路径与命令见 `references/ppt-engine.md`。`ppt-engine` 与 `ppt-builder` 在本仓库中同级，按相对路径定位（见 `references/ppt-engine.md` 的可移植变量定义）。流程:
+后端路径与命令见 `references/ppt-engine.md`。`ppt-engine` 与 `ppt-builder` 在本仓库中同级,按相对路径定位(可移植变量定义见 `references/ppt-engine.md`)。流程:
 
 ```bash
-# PPT_ENGINE 定位见 references/ppt-engine.md（ppt-builder 的同级 ../ppt-engine 目录）
+# PPT_ENGINE 定位见 references/ppt-engine.md(ppt-builder 的同级 ../ppt-engine 目录)
 PPT_ENGINE="$SKILL_DIR/../ppt-engine"
 
 # 1. 初始化项目(如需)
@@ -128,9 +149,10 @@ Windows 上若 `python3` 不可用,用 `python`,脚本路径相同。
 
 ## 完成校验
 
+- Stage 3 lint 清零(error=0,warning 已逐条裁决)。
 - 确认 `.pptx` 存在于项目导出/输出位置。
 - 确认无 native 导出报错;若用了 snapshot 兜底,记录原因。
-- 可能的话请用户在 PowerPoint/WPS 打开确认视觉与可编辑性。
+- 导出后用 PowerPoint COM 或 ppt-engine `visual_review.py` 渲染 PNG 快速复核;可能的话请用户在 PowerPoint/WPS 打开确认视觉与可编辑性。
 
 ## 完成报告模板
 

@@ -34,9 +34,11 @@ python "$PE/scripts/svg_to_pptx.py" projects/my_deck
 
 ```
 ppt-skill/
-├── ppt-builder/                # 入口 skill（提示词、工作流、风格）
+├── ppt-builder/                # 入口 skill（提示词、工作流、风格、质量门）
 │   ├── SKILL.md
+│   ├── scripts/                # svg_text_lint.py（Stage 3 文字溢出/重叠/连线质量门）
 │   └── references/
+│       └── styles/examples/    # 各风格已验收样张 PNG
 ├── ppt-engine/                 # 后端 skill（脚本、模板、工作流）
 │   ├── SKILL.md
 │   ├── scripts/                # project_manager、finalize_svg、svg_to_pptx 等
@@ -46,6 +48,12 @@ ppt-skill/
 ├── README.md
 └── LICENSE
 ```
+
+## 风格与质量门（v2.1）
+
+- **三种风格预设**：汇报风（管理评审型）/ 技术风 v2（三段骨架 + 实测证据页型）/ 信息可视化图文风（军工/规划型），各配已验收样张（`references/styles/examples/`），生成前先读样张对齐观感。
+- **文字宽度预算硬规则**：中文 ≈ 1.0×字号、英文/数字 ≈ 0.55×字号，行宽不得超卡片内宽；居中标签必须 `text-anchor="middle"`；连线端点必须取节点边框几何中点。
+- **Stage 3 质量门**：每页 SVG 生成后立即运行 `python ppt-builder/scripts/svg_text_lint.py <svg目录>`，文字溢出卡片/越出画布/文字重叠/连线悬空/箭头未指向节点全部清零后才可导出；高风险页再用 `ppt-engine/scripts/visual_review.py` 渲染回检。
 
 ## 可移植性
 

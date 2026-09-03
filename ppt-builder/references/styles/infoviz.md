@@ -114,6 +114,13 @@ SVG 必须可被 `svg_to_pptx.py` 转为原生 DrawingML(可编辑、非整图)�
 - [ ] 字体微软雅黑,层级清晰,要点拆卡无文字墙?
 - [ ] 无虚构数据,只用输入材料?
 
+## 样张参考(已验收效果,生成前可 Read 对齐观感)
+
+位于 `references/styles/examples/infoviz/`:
+
+- `p3_flow_slots.png` — 横向链路 A 类技术图 + B 类场景占位 + 深色交付目标卡
+- `p4_data_slots.png` — 数据页:条形图 + 深色强调卡 + B 占位 + 口径要点卡
+
 ## STYLE_BRIEF 示例(填入 svg-page-prompt 的 `{{STYLE_BRIEF}}`)
 
 ```text
